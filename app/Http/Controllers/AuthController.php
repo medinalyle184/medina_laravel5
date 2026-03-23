@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\SampleNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,12 @@ class AuthController extends Controller
             'email'    => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        // Send welcome notification
+        $user->notify(new SampleNotification(
+            'Welcome!',
+            'Thank you for registering on our platform. Your account has been created successfully.'
+        ));
 
         try {
             $token = $user->createToken('api-token')->plainTextToken;
@@ -76,6 +83,12 @@ class AuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
         ]);
+
+        // Send welcome notification
+        $user->notify(new SampleNotification(
+            'Welcome!',
+            'Thank you for registering on our platform. Your account has been created successfully.'
+        ));
 
         try {
             $tokens = [];

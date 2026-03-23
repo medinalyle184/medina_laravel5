@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Models\User;
+use App\Notifications\NewUserNotification;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -65,5 +67,26 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
         Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
         Route::delete('/{id}', [NotificationController::class, 'deleteNotification']);
+    });
+
+    // ── Test Routes for Notifications (from guide) ──────────────────────────
+    Route::get('/send-notification', function () {
+        $user = auth()->user() ?? User::first();
+        $user->notify(new NewUserNotification("Hello! This is a test notification."));
+        return response()->json(['success' => true, 'message' => 'Notification sent to user: ' . $user->name]);
+    });
+
+    Route::get('/get-notifications', function () {
+        $user = auth()->user() ?? User::first();
+        return response()->json([
+            'total' => $user->notifications->count(),
+            'notifications' => $user->notifications,
+        ]);
+    });
+
+    Route::delete('/delete-notifications', function () {
+        $user = auth()->user() ?? User::first();
+        $user->notifications()->delete();
+        return response()->json(['deleted' => true, 'message' => 'All notifications deleted']);
     });
 });
