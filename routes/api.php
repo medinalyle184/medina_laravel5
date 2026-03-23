@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -53,5 +54,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{userId}/assign-role', [RolePermissionController::class, 'assignRoleToUser']);
         Route::post('/{userId}/remove-role', [RolePermissionController::class, 'removeRoleFromUser']);
         Route::post('/{userId}/sync-roles', [RolePermissionController::class, 'syncUserRoles']);
+    });
+
+    // ── Notification Routes ────────────────────────────────────────────────
+    Route::prefix('notifications')->group(function () {
+        Route::get('/', [NotificationController::class, 'getNotifications']);
+        Route::get('/unread', [NotificationController::class, 'getUnreadNotifications']);
+        Route::post('/send', [NotificationController::class, 'sendNotification']);
+        Route::post('/send-multiple', [NotificationController::class, 'sendToMultiple'])->middleware('role:admin');
+        Route::post('/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+        Route::post('/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/{id}', [NotificationController::class, 'deleteNotification']);
     });
 });
